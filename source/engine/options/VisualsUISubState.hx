@@ -1,5 +1,6 @@
 package options;
 
+import lime.ui.WindowVSyncMode;
 import objects.Note;
 import objects.StrumNote;
 
@@ -93,6 +94,6 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	#if native
 	function onChangeVSync()
-		lime.app.Application.current.window.vsync = ClientPrefs.data.vsync;
+		FlxG.stage.application.window.setVSyncMode(ClientPrefs.data.vsync ? WindowVSyncMode.ON : WindowVSyncMode.OFF);
 	#end
 }
