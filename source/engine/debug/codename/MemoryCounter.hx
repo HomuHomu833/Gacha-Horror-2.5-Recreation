@@ -4,20 +4,23 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 
-class MemoryCounter extends Sprite {
+class MemoryCounter extends Sprite
+{
 	public var memoryText:TextField;
 	public var memoryPeakText:TextField;
 
 	public var memory:Float = 0;
 	public var memoryPeak:Float = 0;
 
-	public function new() {
+	public function new()
+	{
 		super();
 
 		memoryText = new TextField();
 		memoryPeakText = new TextField();
 
-		for(label in [memoryText, memoryPeakText]) {
+		for (label in [memoryText, memoryPeakText])
+		{
 			label.autoSize = LEFT;
 			label.x = 0;
 			label.y = 0;
@@ -32,15 +35,29 @@ class MemoryCounter extends Sprite {
 
 	public function reload() {}
 
-	public override function __enterFrame(t:Float) {
-		if (alpha <= 0.05) return;
+	public override function __enterFrame(t:Float)
+	{
+		if (alpha <= 0.05)
+			return;
 		super.__enterFrame(t);
 
-		memory = external.memory.Memory.getCurrentUsage();
-		if (memoryPeak < memory) memoryPeak = memory;
+		final mem = external.memory.Memory.getCurrentUsage();
+
+		if (mem == memory)
+		{
+			updateLabelPosition();
+			return;
+		}
+
+		memory = mem;
+		if (memoryPeak < memory)
+			memoryPeak = memory;
 		memoryText.text = CoolUtil.getSizeString(memory);
 		memoryPeakText.text = ' / ${CoolUtil.getSizeString(memoryPeak)}';
 
-		memoryPeakText.x = memoryText.x + memoryText.width;
+		updateLabelPosition();
 	}
+
+	private inline function updateLabelPosition():Void
+		memoryPeakText.x = memoryText.x + memoryText.width;
 }
