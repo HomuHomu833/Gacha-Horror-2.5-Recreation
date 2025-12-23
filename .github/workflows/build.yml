@@ -35,22 +35,39 @@ jobs:
         uses: actions/checkout@main
 
       - name: Setup Haxe
-        if: inputs.name != 'Linux ARM64'
+        if: inputs.name != 'Linux ARM64' && inputs.name != 'Linux ARMV7'
         uses: krdlab/setup-haxe@master
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
       - name: Setup Haxe (Linux ARM)
-        if: inputs.name == 'Linux ARM64'
+        if: inputs.name == 'Linux ARM64' || inputs.name == 'Linux ARMV7'
         run: |
           sudo add-apt-repository ppa:haxe/releases -y
           sudo apt update
           sudo apt-get install -y haxe neko
           haxelib setup ~/haxelib
 
+      - name: Install Dependencies for Linux
+        if: startsWith(inputs.name, 'Linux')
+        shell: bash
+        run: |
+          case "${{ inputs.name }}" in
+            "Linux i686")
+              sudo dpkg --add-architecture i386
+              sudo apt update
+              sudo apt install -y gcc-multilib g++-multilib
+              ;;
+            "Linux ARMV7")
+              sudo dpkg --add-architecture armhf
+              sudo apt update
+              sudo apt install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+              ;;
+          esac
+
       - name: Install Libraries
         run: |
-          haxelib git hmm https://github.com/FNF-SE/hmm --quiet
+          haxelib git hmm https://github.com/FNF-SE/hmm --skip-dependencies --quiet
           haxelib run hmm install --quiet
 
       - name: Configure Android
@@ -62,7 +79,16 @@ jobs:
           haxelib run lime config ANDROID_SETUP true
 
       - name: Compile
-        run: haxelib run lime build ${{ inputs.buildArgs }} -D ${{ inputs.assetType }}
+        shell: bash
+        run: |
+          case "${{ inputs.name }}" in
+            "Linux ARMV7")
+              CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ linux32 haxelib run lime build ${{ inputs.buildArgs }} -D ${{ inputs.assetType }}
+              ;;
+            *)
+              haxelib run lime build ${{ inputs.buildArgs }} -D ${{ inputs.assetType }}
+              ;;			  
+          esac
 
       - name: Make IPA
         if: inputs.name == 'iOS'
