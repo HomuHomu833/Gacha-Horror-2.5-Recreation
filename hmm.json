@@ -11,8 +11,8 @@
       "name": "openfl",
       "type": "git",
       "dir": null,
-      "ref": null,
-      "url": "https://github.com/FNF-SE/openfl"
+      "ref": "d65d5ec54c799a96f5464c731caefaf3095eb93d",
+      "url": "https://github.com/FunkinCrew/openfl"
     },
     {
       "name": "flixel",
@@ -51,8 +51,10 @@
     },
     {
       "name": "hxdiscord_rpc",
-      "type": "haxelib",
-      "version": null
+      "type": "git",
+      "dir": null,
+      "ref": "2ca5930e9647c5de8c220f98427b5c50ddd244dd",
+      "url": "https://github.com/MAJigsaw77/hxdiscord_rpc"
     },
     {
       "name": "hxluajit",
@@ -63,8 +65,10 @@
     },
     {
       "name": "hxgamemode",
-      "type": "haxelib",
-      "version": null
+      "type": "git",
+      "dir": null,
+      "ref": "faf17c6522bf85f7be4ce38376a8c41812a3c9bf",
+      "url": "https://github.com/MAJigsaw77/hxgamemode"
     }
   ]
 }
