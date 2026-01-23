@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+c<?xml version="1.0" encoding="utf-8"?>
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
@@ -34,6 +34,7 @@
 
 	<classpath name="source/engine" />
 	<classpath name="source/ghrecreation" />
+	<classpath name="source/library_shadows" />
 
 	<!-- Assets -->
 	<assets path="assets/embed" embed="true" />
