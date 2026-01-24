@@ -6,13 +6,13 @@ import openfl.display3D._internal.GLBuffer;
 import openfl.display3D._internal.GLFramebuffer;
 import openfl.display3D._internal.GLTexture;
 import openfl.display._internal.SamplerState;
+import openfl.display3D.textures.ASTCTexture;
 import openfl.display3D.textures.CubeTexture;
+import openfl.display3D.textures.ETC2Texture;
 import openfl.display3D.textures.RectangleTexture;
+import openfl.display3D.textures.S3TCTexture;
 import openfl.display3D.textures.TextureBase;
 import openfl.display3D.textures.Texture;
-import openfl.display3D.textures.ASTCTexture;
-import openfl.display3D.textures.ETC2Texture;
-import openfl.display3D.textures.S3TCTexture;
 import openfl.display3D.textures.VideoTexture;
 import openfl.display.BitmapData;
 import openfl.display.Stage;
@@ -28,7 +28,6 @@ import openfl.utils._internal.UInt16Array;
 import openfl.utils._internal.UInt8Array;
 import openfl.utils.AGALMiniAssembler;
 import openfl.utils.ByteArray;
-import openfl.display.OpenGLRenderer;
 #if lime
 import lime.graphics.opengl.GL;
 import lime.graphics.Image;
@@ -134,10 +133,10 @@ import lime.math.Vector2;
 #end
 @:access(openfl.display3D._internal.Context3DState)
 @:access(openfl.display3D.textures.ASTCTexture)
-@:access(openfl.display3D.textures.ETC2Texture)
-@:access(openfl.display3D.textures.S3TCTexture)
 @:access(openfl.display3D.textures.CubeTexture)
+@:access(openfl.display3D.textures.ETC2Texture)
 @:access(openfl.display3D.textures.RectangleTexture)
+@:access(openfl.display3D.textures.S3TCTexture)
 @:access(openfl.display3D.textures.TextureBase)
 @:access(openfl.display3D.textures.Texture)
 @:access(openfl.display3D.textures.VideoTexture)
@@ -288,7 +287,6 @@ import lime.math.Vector2;
 	@:noCompletion private var __stage3D:Stage3D;
 	@:noCompletion private var __state:Context3DState;
 	@:noCompletion private var __vertexConstants:Float32Array;
-	@:noCompletion private var __usingComplexBlend:Bool;
 
 	@:noCompletion private function new(stage:Stage, contextState:Context3DState = null, stage3D:Stage3D = null)
 	{
@@ -939,14 +937,14 @@ import lime.math.Vector2;
 		return new Texture(this, width, height, format, optimizeForRenderToTexture, streamingLevels);
 	}
 
-	public function createETC2Texture(data:ByteArray):ETC2Texture
-	{
-		return new ETC2Texture(this, data);
-	}
-
 	public function createASTCTexture(data:ByteArray):ASTCTexture
 	{
 		return new ASTCTexture(this, data);
+	}
+
+	public function createETC2Texture(data:ByteArray):ETC2Texture
+	{
+		return new ETC2Texture(this, data);
 	}
 
 	public function createS3TCTexture(data:ByteArray):S3TCTexture
@@ -1259,22 +1257,7 @@ import lime.math.Vector2;
 		var count = (numTriangles == -1) ? indexBuffer.__numIndices : (numTriangles * 3);
 
 		__bindGLElementArrayBuffer(indexBuffer.__id);
-
-		if (OpenGLRenderer.__coherentBlendsSupported)
-		{
-			gl.enable(0x9285); // BLEND_ADVANCED_COHERENT_KHR
-		}
-		else if (__usingComplexBlend)
-		{
-			gl.blendBarrier();
-		}
-
 		gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, firstIndex * 2);
-
-		if (OpenGLRenderer.__coherentBlendsSupported)
-		{
-			gl.disable(0x9285); // BLEND_ADVANCED_COHERENT_KHR
-		}
 	}
 
 	/**
@@ -2084,21 +2067,7 @@ import lime.math.Vector2;
 			__state.program.__flush();
 		}
 
-		if (OpenGLRenderer.__coherentBlendsSupported)
-		{
-			gl.enable(0x9285); // BLEND_ADVANCED_COHERENT_KHR
-		}
-		else if (__usingComplexBlend)
-		{
-			gl.blendBarrier();
-		}
-
 		gl.drawArrays(gl.TRIANGLES, firstIndex, count);
-
-		if (OpenGLRenderer.__coherentBlendsSupported)
-		{
-			gl.disable(0x9285); // BLEND_ADVANCED_COHERENT_KHR
-		}
 	}
 
 	@:noCompletion private function __flushGL():Void
@@ -2429,12 +2398,9 @@ import lime.math.Vector2;
 					__bindGLTextureCubeMap(texture.__getTexture());
 				}
 
-				#if lime
-				if (__context.type == OPENGL)
-				{
-					// TODO: Cache?
-					gl.enable(gl.TEXTURE_2D);
-				}
+				#if (desktop && !html5)
+				// TODO: Cache?
+				gl.enable(gl.TEXTURE_2D);
 				#end
 
 				__contextState.textures[i] = texture;
@@ -2466,12 +2432,9 @@ import lime.math.Vector2;
 					texture.__alphaTexture.__setSamplerState(samplerState);
 					gl.uniform1i(__state.program.__agalAlphaSamplerEnabled[sampler].location, 1);
 
-					#if lime
-					if (__context.type == OPENGL)
-					{
-						// TODO: Cache?
-						gl.enable(gl.TEXTURE_2D);
-					}
+					#if (desktop && !html5)
+					// TODO: Cache?
+					gl.enable(gl.TEXTURE_2D);
 					#end
 				}
 				else
@@ -2760,11 +2723,6 @@ import lime.math.Vector2;
 			}
 			__contextState.__enableGLStencilTest = enable;
 		}
-	}
-
-	@:noCompletion private inline function __glBlendBarrier():Void
-	{
-		gl.blendBarrier();
 	}
 
 	// Get & Set Methods
