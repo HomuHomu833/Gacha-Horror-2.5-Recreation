@@ -108,6 +108,8 @@ c<?xml version="1.0" encoding="utf-8"?>
 	<haxedef name="loop_unroll_max_cost" value="25" />
 	<haxedef name="DISABLED_MACRO_SUPERLATIVE" if="android" />
 
+	<haxedef name="openfl_dpi_aware" />
+
 	<!--Macro fixes-->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
 	<haxeflag name="--macro" value="include('my.pack')" />
